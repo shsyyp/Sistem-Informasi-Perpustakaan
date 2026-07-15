@@ -40,13 +40,7 @@
                     <div class="col-md-6">
                         <div class="form-group mb-3">
                             <label class="form-label">Kode Eksemplar</label>
-                            <input type="text" class="form-control @error('kode_eksemplar') is-invalid @enderror" name="kode_eksemplar" value="{{ $data->kode_eksemplar }}">
-                            <!-- error message for kode_eksemplar -->
-                            @error('kode_eksemplar')
-                                <div class="alert alert-danger mt-2">
-                                    {{ $message }}
-                                </div>
-                            @enderror
+                            <input type="text" class="form-control" value="{{ $data->kode_eksemplar }}" disabled>
                         </div>
                     </div>
                 </div>

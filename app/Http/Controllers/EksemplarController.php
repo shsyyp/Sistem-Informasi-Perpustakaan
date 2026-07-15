@@ -43,12 +43,13 @@ class EksemplarController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'buku_id'        => 'required',
-            'kode_eksemplar' => 'required',
+            'buku_id' => 'required',
         ]);
 
+        $kodeEksemplar = $this->generateKodeEksemplar($request->buku_id);
+
         DB::insert("INSERT INTO `eksemplar` (`id`,`buku_id`,`kode_eksemplar`) values (uuid(),?,?)",
-            [$request->buku_id, $request->kode_eksemplar]);
+            [$request->buku_id, $kodeEksemplar]);
 
         return redirect()->route('eksemplar.index')->with(['success' => 'data berhasil disimpan']);
     }
@@ -78,16 +79,20 @@ class EksemplarController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'buku_id'        => 'required',
-            'kode_eksemplar' => 'required',
+            'buku_id' => 'required',
         ]);
 
         $data = DB::table('eksemplar')->where('id', $id)->first();
         if (!$data)
             redirect()->route('eksemplar.index')->with(['error' => 'data tidak ditemukan!']);
 
+        $kodeEksemplar = $data->kode_eksemplar;
+        if ($data->buku_id !== $request->buku_id) {
+            $kodeEksemplar = $this->generateKodeEksemplar($request->buku_id, $id);
+        }
+
         DB::update("UPDATE `eksemplar` SET `buku_id`=?, `kode_eksemplar`=? WHERE id =?",
-            [$request->buku_id, $request->kode_eksemplar, $id]);
+            [$request->buku_id, $kodeEksemplar, $id]);
 
         return redirect()->route('eksemplar.index')->with(['success' => 'data berhasil di update!']);
     }
@@ -103,5 +108,33 @@ class EksemplarController extends Controller
         DB::table('eksemplar')->where('id', $id)->delete();
         return redirect()->route('eksemplar.index')->with(['success' => ' data berhasil dihapus']);
     }
-}
 
+    private function generateKodeEksemplar($bukuId, $excludeId = null)
+    {
+        $query = DB::table('eksemplar')
+            ->where('buku_id', $bukuId)
+            ->whereNotNull('kode_eksemplar');
+
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        $existingCodes = $query->pluck('kode_eksemplar');
+        $prefix = null;
+        $maxNumber = 0;
+
+        foreach ($existingCodes as $code) {
+            if (preg_match('/^(.+)-(\d+)$/', $code, $matches)) {
+                $prefix = $matches[1];
+                $maxNumber = max($maxNumber, (int) $matches[2]);
+            }
+        }
+
+        if (!$prefix) {
+            $usedBookCount = DB::table('eksemplar')->distinct('buku_id')->count('buku_id');
+            $prefix = 'BK' . ($usedBookCount + 1);
+        }
+
+        return $prefix . '-' . str_pad($maxNumber + 1, 3, '0', STR_PAD_LEFT);
+    }
+}
