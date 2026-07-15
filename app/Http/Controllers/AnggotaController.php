@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use DB;
-use Exception;
 use Illuminate\Http\Request;
 
 class AnggotaController extends Controller
@@ -147,6 +146,18 @@ class AnggotaController extends Controller
 
     public function destroy($id)
     {
+        $anggota = DB::table('anggota')->where('id', $id)->first();
+        if (!$anggota) {
+            return redirect()->route('anggota.index')->with(['error' => 'data tidak ditemukan!']);
+        }
+
+        $jumlahPeminjaman = DB::table('peminjaman')->where('anggota_id', $id)->count();
+        if ($jumlahPeminjaman > 0) {
+            return redirect()->route('anggota.index')->with([
+                'error' => 'Anggota ' . $anggota->kode_anggota . ' - ' . $anggota->nama . ' tidak dapat dihapus karena sudah memiliki riwayat peminjaman.'
+            ]);
+        }
+
         DB::table('anggota')->where('id', $id)->delete();
         // //redirect to index
         return redirect()->route('anggota.index')->with(['success' => ' data berhasil dihapus']);
