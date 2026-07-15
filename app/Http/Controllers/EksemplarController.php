@@ -105,6 +105,18 @@ class EksemplarController extends Controller
      */
     public function destroy($id)
     {
+        $eksemplar = DB::table('eksemplar')->where('id', $id)->first();
+        if (!$eksemplar) {
+            return redirect()->route('eksemplar.index')->with(['error' => 'data tidak ditemukan!']);
+        }
+
+        $jumlahPeminjaman = DB::table('peminjaman')->where('eksemplar_id', $id)->count();
+        if ($jumlahPeminjaman > 0) {
+            return redirect()->route('eksemplar.index')->with([
+                'error' => 'Eksemplar ' . $eksemplar->kode_eksemplar . ' tidak dapat dihapus karena sudah memiliki riwayat peminjaman.'
+            ]);
+        }
+
         DB::table('eksemplar')->where('id', $id)->delete();
         return redirect()->route('eksemplar.index')->with(['success' => ' data berhasil dihapus']);
     }
