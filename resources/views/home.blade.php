@@ -165,24 +165,18 @@
                                                 @enderror
                                             </div>
                                         </div>
-                                        <div class="col-md-12" id="searchField" hidden>
+                                        <div class="col-md-12" id="namaField" hidden>
                                             <div class="form-group mb-3">
-                                                <label class="form-label" id="searchLabel">Cari Anggota</label>
-                                                <input type="text" class="form-control" id="member_search" placeholder="Ketik kode atau nama anggota">
-                                                <small class="text-muted" id="memberSearchHelp">Ketik minimal 2 karakter, lalu sistem akan mengisi kode dan nama otomatis.</small>
+                                                <label class="form-label" id="namaLabel">Nama</label>
+                                                <input type="text" class="form-control" name="nama" id="nama" placeholder="Masukkan nama pengunjung" required autocomplete="off">
+                                                <small class="text-muted" id="memberSearchHelp">Untuk Siswa/Guru, ketik nama atau kode lalu pilih data yang muncul.</small>
                                                 <div class="list-group mt-2 d-none" id="memberSuggestions"></div>
                                             </div>
                                         </div>
                                         <div class="col-md-12" id="idField" hidden>
                                             <div class="form-group mb-3">
                                                 <label class="form-label" id="idLabel">Identitas</label>
-                                                <input type="text" class="form-control" name="id_tamu" id="id_tamu" placeholder="Masukkan kode anggota atau identitas" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-12" id="namaField" hidden>
-                                            <div class="form-group mb-3">
-                                                <label class="form-label" id="namaLabel">Nama</label>
-                                                <input type="text" class="form-control" name="nama" id="nama" placeholder="Masukkan nama pengunjung" required>
+                                                <input type="text" class="form-control" name="id_tamu" id="id_tamu" placeholder="Masukkan kode anggota atau identitas" required autocomplete="off">
                                             </div>
                                         </div>
                                     </div>
@@ -264,10 +258,11 @@
         $('#table').DataTable();
 
         let memberLookupTimer = null
+        let activeLookupField = null
 
         function resetVisitorFields() {
-            $('#member_search').val('')
-            $('#memberSearchHelp').removeClass('text-success text-danger').addClass('text-muted').text('Ketik minimal 2 karakter, lalu sistem akan mengisi kode dan nama otomatis.')
+            activeLookupField = null
+            $('#memberSearchHelp').removeClass('text-success text-danger').addClass('text-muted').text('Untuk Siswa/Guru, ketik nama atau kode lalu pilih data yang muncul.')
             $('#memberSuggestions').addClass('d-none').empty()
             $('[name="id_tamu"]').val('')
             $('[name="nama"]').val('')
@@ -277,8 +272,6 @@
 
         function fillMemberFields(member) {
             if (!member) {
-                $('[name="id_tamu"]').val('')
-                $('[name="nama"]').val('')
                 $('#memberSearchHelp').removeClass('text-muted text-success').addClass('text-danger').text('Data anggota tidak ditemukan. Periksa jenis pengunjung atau kata pencarian.')
                 return
             }
@@ -302,13 +295,11 @@
                 return member.kode_anggota.toLowerCase() === keyword.toLowerCase() || member.nama.toLowerCase() === keyword.toLowerCase()
             })
 
-            if (members.length === 1 || exactMatch) {
-                fillMemberFields(exactMatch || members[0])
+            if (exactMatch) {
+                fillMemberFields(exactMatch)
                 return
             }
 
-            $('[name="id_tamu"]').val('')
-            $('[name="nama"]').val('')
             $('#memberSearchHelp').removeClass('text-muted text-success text-danger').addClass('text-muted').text('Pilih salah satu anggota dari daftar berikut.')
 
             members.forEach(function(member) {
@@ -355,34 +346,27 @@
             let hasJenis = jenis !== ''
             let isMember = ['Siswa', 'Guru'].includes(jenis)
 
-            $('#searchField').prop('hidden', !isMember)
-            $('#idField').prop('hidden', !hasJenis)
             $('#namaField').prop('hidden', !hasJenis)
+            $('#idField').prop('hidden', !hasJenis)
             $('#asalField').prop('hidden', !hasJenis)
             $('#tujuanField').prop('hidden', !hasJenis)
 
             let labelConfig = {
                 Siswa: {
-                    search: 'Cari Siswa',
-                    searchPlaceholder: 'Ketik kode anggota atau nama siswa',
                     id: 'Kode Anggota',
-                    idPlaceholder: 'Terisi otomatis setelah siswa ditemukan',
-                    namaPlaceholder: 'Terisi otomatis setelah siswa ditemukan',
+                    idPlaceholder: 'Ketik kode anggota, contoh: S-001',
+                    namaPlaceholder: 'Ketik nama siswa',
                     asal: 'Kelas',
                     asalPlaceholder: 'Contoh: XII IPA 1'
                 },
                 Guru: {
-                    search: 'Cari Guru',
-                    searchPlaceholder: 'Ketik kode guru atau nama guru',
                     id: 'Kode Guru',
-                    idPlaceholder: 'Terisi otomatis setelah guru ditemukan',
-                    namaPlaceholder: 'Terisi otomatis setelah guru ditemukan',
+                    idPlaceholder: 'Ketik kode guru, contoh: G-001',
+                    namaPlaceholder: 'Ketik nama guru',
                     asal: 'Bagian / Jabatan',
                     asalPlaceholder: 'Contoh: Guru Bahasa Indonesia'
                 },
                 Umum: {
-                    search: '',
-                    searchPlaceholder: '',
                     id: 'No. Identitas / ID Tamu',
                     idPlaceholder: 'Contoh: NIK atau ID tamu',
                     namaPlaceholder: 'Masukkan nama pengunjung',
@@ -392,19 +376,23 @@
             }
 
             let config = labelConfig[jenis] || labelConfig.Umum
-            $('#searchLabel').text(config.search)
-            $('#member_search').attr('placeholder', config.searchPlaceholder)
             $('#idLabel').text(config.id)
             $('#id_tamu').attr('placeholder', config.idPlaceholder)
             $('#nama').attr('placeholder', config.namaPlaceholder)
             $('#AsalLabel').text(config.asal)
             $('#asal').attr('placeholder', config.asalPlaceholder)
 
-            $('#id_tamu').prop('readonly', isMember)
-            $('#nama').prop('readonly', isMember)
+            $('#id_tamu').prop('readonly', false)
+            $('#nama').prop('readonly', false)
         })
 
-        $(document).on('keyup paste', '#member_search', function() {
+        $(document).on('keyup paste', '#nama, #id_tamu', function() {
+            let jenis = $('[name="jenis_pengunjung"]').val()
+            if (!['Siswa', 'Guru'].includes(jenis)) {
+                return
+            }
+
+            activeLookupField = $(this).attr('id')
             lookupMember($(this).val())
         })
 
@@ -421,8 +409,8 @@
 
             if (isMember && (!$('[name="id_tamu"]').val() || !$('[name="nama"]').val())) {
                 event.preventDefault()
-                $('#memberSearchHelp').removeClass('text-muted text-success').addClass('text-danger').text('Pilih data anggota terlebih dahulu dari kolom pencarian.')
-                $('#member_search').focus()
+                $('#memberSearchHelp').removeClass('text-muted text-success').addClass('text-danger').text('Pilih data anggota dari referensi nama atau kode terlebih dahulu.')
+                $('#nama').focus()
             }
         })
     </script>
