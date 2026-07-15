@@ -167,10 +167,10 @@
                                         </div>
                                         <div class="col-md-12" id="idField" hidden>
                                             <div class="form-group mb-3">
-                                            <label class="form-label" id="idLabel" >Identitas</label>
-                                                <input type="text" class="form-control @error('id') is-invalid @enderror" name="id_tamu" id="id_tamu" placeholder="............." required>
-                                                <!-- error message for id -->
-                                                @error('id')
+                                                <label class="form-label" id="idLabel">Identitas</label>
+                                                <input type="text" class="form-control @error('id_tamu') is-invalid @enderror" name="id_tamu" id="id_tamu" placeholder="Masukkan identitas" required>
+                                                <!-- error message for id_tamu -->
+                                                @error('id_tamu')
                                                     <div class="alert alert-danger mt-2">
                                                         {{ $message }}
                                                     </div>
@@ -179,7 +179,7 @@
                                         </div>
                                         <div class="col-md-12" id="namaField" hidden>
                                             <div class="form-group mb-3">
-                                            <label class="form-label" id="namaLabel" >Nama</label>
+                                                <label class="form-label" id="namaLabel">Nama</label>
                                                 <input type="text" class="form-control @error('nama') is-invalid @enderror" name="nama" id="nama" required>
                                                 <!-- error message for nama -->
                                                 @error('nama')
@@ -195,7 +195,7 @@
                                     <div class="col-md-12" id="asalField" hidden>
                                             <div class="form-group mb-3">
                                                 <label class="form-label" id="AsalLabel">Asal</label>
-                                                <input type="text" class="form-control @error('asal') is-invalid @enderror" name="asal" id="asal" required>
+                                                <input type="text" class="form-control @error('asal') is-invalid @enderror" name="asal" id="asal" placeholder="Masukkan asal pengunjung" required>
                                                 <!-- error message for asal -->
                                                 @error('asal')
                                                     <div class="alert alert-danger mt-2">
@@ -207,7 +207,15 @@
                                         <div class="col-md-12" id="tujuanField" hidden>
                                             <div class="form-group mb-3">
                                                 <label class="form-label">Tujuan Kunjungan</label>
-                                                <input type="text" class="form-control @error('tujuan') is-invalid @enderror" name="tujuan" required>
+                                                <select name="tujuan" id="tujuan" class="form-control @error('tujuan') is-invalid @enderror" required>
+                                                    <option value="">. . . . . .</option>
+                                                    <option value="Membaca Buku">Membaca Buku</option>
+                                                    <option value="Meminjam Buku">Meminjam Buku</option>
+                                                    <option value="Mengembalikan Buku">Mengembalikan Buku</option>
+                                                    <option value="Mencari Referensi">Mencari Referensi</option>
+                                                    <option value="Kunjungan Perpustakaan">Kunjungan Perpustakaan</option>
+                                                    <option value="Lainnya">Lainnya</option>
+                                                </select>
                                                 <!-- error message for tujuan -->
                                                 @error('tujuan')
                                                     <div class="alert alert-danger mt-2">
@@ -259,42 +267,72 @@
     <script>
         $('#table').DataTable();
 
-        $(document).on('change', '[name="jenis_pengunjung"]', function () {
+        $(document).on('change', '[name="jenis_pengunjung"]', function() {
             let jenis = $(this).val()
 
             $('[name="id_tamu"]').val('')
             $('[name="nama"]').val('')
             $('[name="asal"]').val('')
+            $('[name="tujuan"]').val('')
 
-            $('#idField').prop('hidden', false)
-            $('#namaField').prop('hidden', false)
-            $('#asalField').prop('hidden', false)
-            $('#tujuanField').prop('hidden', false)
+            let hasJenis = jenis !== ''
+            $('#idField').prop('hidden', !hasJenis)
+            $('#namaField').prop('hidden', !hasJenis)
+            $('#asalField').prop('hidden', !hasJenis)
+            $('#tujuanField').prop('hidden', !hasJenis)
 
-            $('#idLabel').text(jenis == 'Siswa' ? 'NISN' : (jenis == 'Guru' ? 'NIP' : 'NIK')) 
-            $('#AsalLabel').text(jenis == 'Siswa' ? 'Kelas' : (jenis == 'Guru' ? 'Bagian' : 'Asal')) 
+            let labelConfig = {
+                Siswa: {
+                    id: 'NISN / Kode Anggota',
+                    idPlaceholder: 'Contoh: S-001',
+                    asal: 'Kelas',
+                    asalPlaceholder: 'Contoh: XII IPA 1'
+                },
+                Guru: {
+                    id: 'NIP / Kode Guru',
+                    idPlaceholder: 'Contoh: G-001',
+                    asal: 'Bagian / Jabatan',
+                    asalPlaceholder: 'Contoh: Guru Bahasa Indonesia'
+                },
+                Umum: {
+                    id: 'No. Identitas / ID Tamu',
+                    idPlaceholder: 'Contoh: U-001 atau NIK',
+                    asal: 'Asal Instansi',
+                    asalPlaceholder: 'Contoh: Politeknik Caltex Riau'
+                }
+            }
+
+            let config = labelConfig[jenis] || labelConfig.Umum
+            $('#idLabel').text(config.id)
+            $('#id_tamu').attr('placeholder', config.idPlaceholder)
+            $('#AsalLabel').text(config.asal)
+            $('#asal').attr('placeholder', config.asalPlaceholder)
         })
 
-        $(document).on('keyup paste keydown', '[name="id_tamu"]', function () {
-            let jenis = $('[name="jenis_pengunjung"]').val() 
+        $(document).on('keyup paste keydown', '[name="id_tamu"]', function() {
+            let jenis = $('[name="jenis_pengunjung"]').val()
+            let id = $('[name="id_tamu"]').val()
 
-                let id = $('[name="id_tamu"]').val()
-                $.ajax({
-                    url: `{{route('getmember')}}`,
-                    type: 'GET',
-                    data: {
-                        kode_anggota: id,
-                        jenis_anggota: jenis
-                    },  
-                    dataType: "json",
-                    success: function (resp) {
-                        if (resp) {
-                            $('[name="nama"]').val(resp.nama)
-                        } else {
-                            $('[name="nama"]').val('')
-                        }
+            if (!['Siswa', 'Guru'].includes(jenis) || id.length < 3) {
+                return
+            }
+
+            $.ajax({
+                url: `{{ route('getmember') }}`,
+                type: 'GET',
+                data: {
+                    kode_anggota: id,
+                    jenis_anggota: jenis
+                },
+                dataType: "json",
+                success: function(resp) {
+                    if (resp) {
+                        $('[name="nama"]').val(resp.nama)
+                    } else {
+                        $('[name="nama"]').val('')
                     }
-                })
+                }
+            })
         })
     </script>
 
