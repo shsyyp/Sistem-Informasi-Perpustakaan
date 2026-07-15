@@ -62,7 +62,7 @@
                     <div class="col-md-6">
                         <div class="form-group mb-3">
                             <label class="form-label">Tanggal Pinjam</label>
-                            <input type="datetime-local" class="form-control @error('tanggal_pinjam') is-invalid @enderror" name="tanggal_pinjam" value="{{ old('tanggal_pinjam') }}">
+                            <input type="datetime-local" class="form-control @error('tanggal_pinjam') is-invalid @enderror" name="tanggal_pinjam" value="{{ old('tanggal_pinjam', date('Y-m-d\TH:i')) }}">
                             <!-- error message for tanggal_pinjam -->
                             @error('tanggal_pinjam')
                                 <div class="alert alert-danger mt-2">

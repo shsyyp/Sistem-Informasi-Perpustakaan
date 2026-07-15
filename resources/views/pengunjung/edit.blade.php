@@ -24,7 +24,11 @@
                     <div class="col-md-6">
                         <div class="form-group mb-3">
                             <label class="form-label">Jenis Pengunjung</label>
-                            <input type="text" class="form-control @error('jenis_pengunjung') is-invalid @enderror" name="jenis_pengunjung" value="{{ $data->jenis_pengunjung }}">
+                            <select name="jenis_pengunjung" class="form-control @error('jenis_pengunjung') is-invalid @enderror">
+                                <option value="Siswa" {{ $data->jenis_pengunjung == 'Siswa' ? 'selected' : '' }}>Siswa</option>
+                                <option value="Guru" {{ $data->jenis_pengunjung == 'Guru' ? 'selected' : '' }}>Guru</option>
+                                <option value="Umum" {{ $data->jenis_pengunjung == 'Umum' ? 'selected' : '' }}>Umum</option>
+                            </select>
                             <!-- error message for jenis_pengunjung -->
                             @error('jenis_pengunjung')
                                 <div class="alert alert-danger mt-2">
@@ -78,9 +82,9 @@
                     <div class="col-md-6">
                         <div class="form-group mb-3">
                             <label class="form-label">Waktu Kunjungan</label>
-                            <input type="datetime-local" class="form-control @error('asal') is-invalid @enderror" name="waktu_kunjungan" value="{{ date('Y-m-d H:i', strtotime($data->waktu_kunjungan)) }}">
-                            <!-- error message for asal -->
-                            @error('asal')
+                            <input type="datetime-local" class="form-control @error('waktu_kunjungan') is-invalid @enderror" name="waktu_kunjungan" value="{{ date('Y-m-d\TH:i', strtotime($data->waktu_kunjungan)) }}">
+                            <!-- error message for waktu_kunjungan -->
+                            @error('waktu_kunjungan')
                                 <div class="alert alert-danger mt-2">
                                     {{ $message }}
                                 </div>

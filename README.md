@@ -10,6 +10,7 @@ Project ini digunakan sebagai studi kasus untuk sertifikasi Database Programmer 
 - Manajemen data admin.
 - Manajemen data anggota perpustakaan.
 - Pembuatan kode anggota otomatis berdasarkan jenis anggota.
+- Import anggota dengan kode anggota yang dibuat otomatis oleh sistem.
 - Manajemen data buku.
 - Manajemen data eksemplar buku.
 - Pembuatan kode eksemplar otomatis berdasarkan buku yang dipilih.
@@ -130,5 +131,6 @@ Project ini mendukung pembuktian unit kompetensi berikut:
 - Implementasi algoritma proses peminjaman dan pengembalian.
 - Implementasi algoritma penomoran otomatis kode anggota.
 - Implementasi algoritma penomoran otomatis kode eksemplar.
+- Otomatisasi tanggal pinjam dan waktu kunjungan untuk mengurangi input manual.
 - Dokumentasi kode program dan penggunaan aplikasi.
 - Debugging, source code versioning, profiling, dan code review.

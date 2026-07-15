@@ -164,7 +164,7 @@
             }
 
             // Definisikan format yang diharapkan
-            const expectedColumns = ['kode_anggota', 'jenis_anggota', 'nama', 'jenis_kelamin'];
+            const expectedColumns = ['jenis_anggota', 'nama', 'jenis_kelamin'];
 
             // Periksa jumlah kolom
             const firstRowColumns = Object.keys(jsonData[0]);

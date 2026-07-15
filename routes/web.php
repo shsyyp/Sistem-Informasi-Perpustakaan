@@ -24,7 +24,7 @@ Route::get('logout', [App\Http\Controllers\LoginController::class, 'logout'])->n
 Route::get('get-member', [App\Http\Controllers\HomeController::class, 'getmember'])->name('getmember');
 
 Route::middleware(['auth'])->group(function () {
-    Route::resource('/dashboard', \App\Http\Controllers\DashboardController::class);
+    Route::resource('/dashboard', \App\Http\Controllers\DashboardController::class)->only(['index']);
     Route::resource('/admin', \App\Http\Controllers\AdminController::class);
     Route::resource('/anggota', \App\Http\Controllers\AnggotaController::class);
     Route::post('/anggota/import', [\App\Http\Controllers\AnggotaController::class, 'import'])->name('anggota.import');

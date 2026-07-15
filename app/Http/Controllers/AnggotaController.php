@@ -67,10 +67,11 @@ class AnggotaController extends Controller
 
         $insertedDataCount = 0;
 
-        // Lakukan iterasi dan lakukan insert ke database
         foreach ($jsonData as $data) {
+            $kodeAnggota = $this->generateKodeAnggota($data['jenis_anggota']);
+
             DB::insert("INSERT INTO `anggota` (`id`,`kode_anggota`,`jenis_anggota`,`nama`,`jenis_kelamin`)values (uuid(),?,?,?,?)",
-                [strtoupper($data['kode_anggota']), $data['jenis_anggota'], $data['nama'], $data['jenis_kelamin']]);
+                [$kodeAnggota, $data['jenis_anggota'], $data['nama'], $data['jenis_kelamin']]);
 
             $insertedDataCount++;
         }
