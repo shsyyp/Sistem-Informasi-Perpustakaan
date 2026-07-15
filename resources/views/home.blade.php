@@ -168,7 +168,7 @@
                                         <div class="col-md-12" id="idField" hidden>
                                             <div class="form-group mb-3">
                                                 <label class="form-label" id="idLabel">Identitas</label>
-                                                <input type="text" class="form-control @error('id_tamu') is-invalid @enderror" name="id_tamu" id="id_tamu" placeholder="Masukkan identitas" required>
+                                                <input type="text" class="form-control @error('id_tamu') is-invalid @enderror" name="id_tamu" id="id_tamu" placeholder="Masukkan kode anggota atau identitas" required>
                                                 <!-- error message for id_tamu -->
                                                 @error('id_tamu')
                                                     <div class="alert alert-danger mt-2">
@@ -180,7 +180,7 @@
                                         <div class="col-md-12" id="namaField" hidden>
                                             <div class="form-group mb-3">
                                                 <label class="form-label" id="namaLabel">Nama</label>
-                                                <input type="text" class="form-control @error('nama') is-invalid @enderror" name="nama" id="nama" required>
+                                                <input type="text" class="form-control @error('nama') is-invalid @enderror" name="nama" id="nama" placeholder="Masukkan nama pengunjung" required>
                                                 <!-- error message for nama -->
                                                 @error('nama')
                                                     <div class="alert alert-danger mt-2">
@@ -195,7 +195,7 @@
                                     <div class="col-md-12" id="asalField" hidden>
                                             <div class="form-group mb-3">
                                                 <label class="form-label" id="AsalLabel">Asal</label>
-                                                <input type="text" class="form-control @error('asal') is-invalid @enderror" name="asal" id="asal" placeholder="Masukkan asal pengunjung" required>
+                                                <input type="text" class="form-control @error('asal') is-invalid @enderror" name="asal" id="asal" required>
                                                 <!-- error message for asal -->
                                                 @error('asal')
                                                     <div class="alert alert-danger mt-2">
@@ -267,13 +267,52 @@
     <script>
         $('#table').DataTable();
 
-        $(document).on('change', '[name="jenis_pengunjung"]', function() {
-            let jenis = $(this).val()
+        let memberLookupTimer = null
 
+        function resetVisitorFields() {
             $('[name="id_tamu"]').val('')
             $('[name="nama"]').val('')
             $('[name="asal"]').val('')
             $('[name="tujuan"]').val('')
+        }
+
+        function fillMemberFields(member) {
+            if (!member) {
+                return
+            }
+
+            $('[name="id_tamu"]').val(member.kode_anggota)
+            $('[name="nama"]').val(member.nama)
+        }
+
+        function lookupMember(keyword) {
+            let jenis = $('[name="jenis_pengunjung"]').val()
+
+            if (!['Siswa', 'Guru', 'Umum'].includes(jenis) || !keyword || keyword.length < 2) {
+                return
+            }
+
+            clearTimeout(memberLookupTimer)
+            memberLookupTimer = setTimeout(function() {
+                $.ajax({
+                    url: `{{ route('getmember') }}`,
+                    type: 'GET',
+                    data: {
+                        keyword: keyword,
+                        jenis_anggota: jenis
+                    },
+                    dataType: "json",
+                    success: function(resp) {
+                        fillMemberFields(resp)
+                    }
+                })
+            }, 300)
+        }
+
+        $(document).on('change', '[name="jenis_pengunjung"]', function() {
+            let jenis = $(this).val()
+
+            resetVisitorFields()
 
             let hasJenis = jenis !== ''
             $('#idField').prop('hidden', !hasJenis)
@@ -284,19 +323,22 @@
             let labelConfig = {
                 Siswa: {
                     id: 'NISN / Kode Anggota',
-                    idPlaceholder: 'Contoh: S-001',
+                    idPlaceholder: 'Contoh: S-001 atau nama siswa',
+                    namaPlaceholder: 'Ketik nama siswa untuk pencarian otomatis',
                     asal: 'Kelas',
                     asalPlaceholder: 'Contoh: XII IPA 1'
                 },
                 Guru: {
                     id: 'NIP / Kode Guru',
-                    idPlaceholder: 'Contoh: G-001',
+                    idPlaceholder: 'Contoh: G-001 atau nama guru',
+                    namaPlaceholder: 'Ketik nama guru untuk pencarian otomatis',
                     asal: 'Bagian / Jabatan',
                     asalPlaceholder: 'Contoh: Guru Bahasa Indonesia'
                 },
                 Umum: {
                     id: 'No. Identitas / ID Tamu',
-                    idPlaceholder: 'Contoh: U-001 atau NIK',
+                    idPlaceholder: 'Contoh: U-001, NIK, atau nama tamu',
+                    namaPlaceholder: 'Masukkan nama pengunjung',
                     asal: 'Asal Instansi',
                     asalPlaceholder: 'Contoh: Politeknik Caltex Riau'
                 }
@@ -305,34 +347,13 @@
             let config = labelConfig[jenis] || labelConfig.Umum
             $('#idLabel').text(config.id)
             $('#id_tamu').attr('placeholder', config.idPlaceholder)
+            $('#nama').attr('placeholder', config.namaPlaceholder)
             $('#AsalLabel').text(config.asal)
             $('#asal').attr('placeholder', config.asalPlaceholder)
         })
 
-        $(document).on('keyup paste keydown', '[name="id_tamu"]', function() {
-            let jenis = $('[name="jenis_pengunjung"]').val()
-            let id = $('[name="id_tamu"]').val()
-
-            if (!['Siswa', 'Guru'].includes(jenis) || id.length < 3) {
-                return
-            }
-
-            $.ajax({
-                url: `{{ route('getmember') }}`,
-                type: 'GET',
-                data: {
-                    kode_anggota: id,
-                    jenis_anggota: jenis
-                },
-                dataType: "json",
-                success: function(resp) {
-                    if (resp) {
-                        $('[name="nama"]').val(resp.nama)
-                    } else {
-                        $('[name="nama"]').val('')
-                    }
-                }
-            })
+        $(document).on('keyup paste', '[name="id_tamu"], [name="nama"]', function() {
+            lookupMember($(this).val())
         })
     </script>
 

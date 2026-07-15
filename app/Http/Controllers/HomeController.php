@@ -39,13 +39,22 @@ class HomeController extends Controller
 
     public function getmember(Request $request)
     {
-        $kode_anggota = $request->input('kode_anggota');
         $jenis_anggota = $request->input('jenis_anggota');
+        $keyword = $request->input('keyword', $request->input('kode_anggota'));
 
-        // Fetch data from the database based on $identitasValue
-        $data = DB::table('anggota')->where(['kode_anggota' => $kode_anggota, 'jenis_anggota' => $jenis_anggota])->first();
+        if (!$jenis_anggota || !$keyword) {
+            return response()->json(null);
+        }
 
-        // Return the data as JSON
+        $data = DB::table('anggota')
+            ->where('jenis_anggota', $jenis_anggota)
+            ->where(function ($query) use ($keyword) {
+                $query->where('kode_anggota', $keyword)
+                    ->orWhere('nama', 'like', '%' . $keyword . '%');
+            })
+            ->orderByRaw("CASE WHEN kode_anggota = ? THEN 0 ELSE 1 END", [$keyword])
+            ->first();
+
         return response()->json($data);
     }
 }
