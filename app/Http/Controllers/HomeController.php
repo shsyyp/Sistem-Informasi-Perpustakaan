@@ -47,13 +47,17 @@ class HomeController extends Controller
         }
 
         $data = DB::table('anggota')
+            ->select('id', 'kode_anggota', 'jenis_anggota', 'nama', 'jenis_kelamin')
             ->where('jenis_anggota', $jenis_anggota)
             ->where(function ($query) use ($keyword) {
-                $query->where('kode_anggota', $keyword)
+                $query->where('kode_anggota', 'like', '%' . $keyword . '%')
                     ->orWhere('nama', 'like', '%' . $keyword . '%');
             })
             ->orderByRaw("CASE WHEN kode_anggota = ? THEN 0 ELSE 1 END", [$keyword])
-            ->first();
+            ->orderByRaw("CASE WHEN nama = ? THEN 0 ELSE 1 END", [$keyword])
+            ->orderBy('nama')
+            ->limit(5)
+            ->get();
 
         return response()->json($data);
     }

@@ -144,7 +144,7 @@
                                 <h5 class="modal-title" id="modalFullTitle">Buku Tamu</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form action="{{ route('kunjungan') }}" class="form" method="post">
+                            <form action="{{ route('kunjungan') }}" class="form" method="post" id="guestBookForm">
                                 <div class="modal-body">
                                     @csrf
                                     <div class="row">
@@ -170,30 +170,19 @@
                                                 <label class="form-label" id="searchLabel">Cari Anggota</label>
                                                 <input type="text" class="form-control" id="member_search" placeholder="Ketik kode atau nama anggota">
                                                 <small class="text-muted" id="memberSearchHelp">Ketik minimal 2 karakter, lalu sistem akan mengisi kode dan nama otomatis.</small>
+                                                <div class="list-group mt-2 d-none" id="memberSuggestions"></div>
                                             </div>
                                         </div>
                                         <div class="col-md-12" id="idField" hidden>
                                             <div class="form-group mb-3">
                                                 <label class="form-label" id="idLabel">Identitas</label>
-                                                <input type="text" class="form-control @error('id_tamu') is-invalid @enderror" name="id_tamu" id="id_tamu" placeholder="Masukkan kode anggota atau identitas" required>
-                                                <!-- error message for id_tamu -->
-                                                @error('id_tamu')
-                                                    <div class="alert alert-danger mt-2">
-                                                        {{ $message }}
-                                                    </div>
-                                                @enderror
+                                                <input type="text" class="form-control" name="id_tamu" id="id_tamu" placeholder="Masukkan kode anggota atau identitas" required>
                                             </div>
                                         </div>
                                         <div class="col-md-12" id="namaField" hidden>
                                             <div class="form-group mb-3">
                                                 <label class="form-label" id="namaLabel">Nama</label>
-                                                <input type="text" class="form-control @error('nama') is-invalid @enderror" name="nama" id="nama" placeholder="Masukkan nama pengunjung" required>
-                                                <!-- error message for nama -->
-                                                @error('nama')
-                                                    <div class="alert alert-danger mt-2">
-                                                        {{ $message }}
-                                                    </div>
-                                                @enderror
+                                                <input type="text" class="form-control" name="nama" id="nama" placeholder="Masukkan nama pengunjung" required>
                                             </div>
                                         </div>
                                     </div>
@@ -279,6 +268,7 @@
         function resetVisitorFields() {
             $('#member_search').val('')
             $('#memberSearchHelp').removeClass('text-success text-danger').addClass('text-muted').text('Ketik minimal 2 karakter, lalu sistem akan mengisi kode dan nama otomatis.')
+            $('#memberSuggestions').addClass('d-none').empty()
             $('[name="id_tamu"]').val('')
             $('[name="nama"]').val('')
             $('[name="asal"]').val('')
@@ -296,6 +286,41 @@
             $('[name="id_tamu"]').val(member.kode_anggota)
             $('[name="nama"]').val(member.nama)
             $('#memberSearchHelp').removeClass('text-muted text-danger').addClass('text-success').text('Data anggota ditemukan dan sudah diisi otomatis.')
+            $('#memberSuggestions').addClass('d-none').empty()
+        }
+
+        function renderMemberSuggestions(members, keyword) {
+            let suggestions = $('#memberSuggestions')
+            suggestions.empty().addClass('d-none')
+
+            if (!members || members.length === 0) {
+                fillMemberFields(null)
+                return
+            }
+
+            let exactMatch = members.find(function(member) {
+                return member.kode_anggota.toLowerCase() === keyword.toLowerCase() || member.nama.toLowerCase() === keyword.toLowerCase()
+            })
+
+            if (members.length === 1 || exactMatch) {
+                fillMemberFields(exactMatch || members[0])
+                return
+            }
+
+            $('[name="id_tamu"]').val('')
+            $('[name="nama"]').val('')
+            $('#memberSearchHelp').removeClass('text-muted text-success text-danger').addClass('text-muted').text('Pilih salah satu anggota dari daftar berikut.')
+
+            members.forEach(function(member) {
+                let option = $('<button type="button" class="list-group-item list-group-item-action member-option"></button>')
+                option.data('code', member.kode_anggota)
+                option.data('name', member.nama)
+                option.append($('<strong></strong>').text(member.nama))
+                option.append($('<span class="text-muted ms-2"></span>').text(member.kode_anggota))
+                suggestions.append(option)
+            })
+
+            suggestions.removeClass('d-none')
         }
 
         function lookupMember(keyword) {
@@ -316,7 +341,7 @@
                     },
                     dataType: "json",
                     success: function(resp) {
-                        fillMemberFields(resp)
+                        renderMemberSuggestions(resp, keyword)
                     }
                 })
             }, 300)
@@ -381,6 +406,24 @@
 
         $(document).on('keyup paste', '#member_search', function() {
             lookupMember($(this).val())
+        })
+
+        $(document).on('click', '.member-option', function() {
+            fillMemberFields({
+                kode_anggota: $(this).data('code'),
+                nama: $(this).data('name')
+            })
+        })
+
+        $('#guestBookForm').on('submit', function(event) {
+            let jenis = $('[name="jenis_pengunjung"]').val()
+            let isMember = ['Siswa', 'Guru'].includes(jenis)
+
+            if (isMember && (!$('[name="id_tamu"]').val() || !$('[name="nama"]').val())) {
+                event.preventDefault()
+                $('#memberSearchHelp').removeClass('text-muted text-success').addClass('text-danger').text('Pilih data anggota terlebih dahulu dari kolom pencarian.')
+                $('#member_search').focus()
+            }
         })
     </script>
 
