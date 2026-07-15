@@ -64,6 +64,12 @@ Relasi logis:
 - `admin` digunakan untuk autentikasi dan pengelolaan data.
 - `pengunjung` digunakan untuk mencatat kunjungan perpustakaan.
 
+Foreign key:
+
+- `eksemplar.buku_id` mengacu ke `buku.id`.
+- `peminjaman.anggota_id` mengacu ke `anggota.id`.
+- `peminjaman.eksemplar_id` mengacu ke `eksemplar.id`.
+
 ## Instalasi
 
 1. Clone repository.

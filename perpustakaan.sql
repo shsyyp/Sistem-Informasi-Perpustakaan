@@ -122,7 +122,9 @@ CREATE TABLE `eksemplar` (
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `eksemplar_un` (`kode_eksemplar`)
+  UNIQUE KEY `eksemplar_un` (`kode_eksemplar`),
+  KEY `eksemplar_buku_id_foreign` (`buku_id`),
+  CONSTRAINT `eksemplar_buku_id_foreign` FOREIGN KEY (`buku_id`) REFERENCES `buku` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -152,7 +154,11 @@ CREATE TABLE `peminjaman` (
   `status` varchar(20) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `peminjaman_anggota_id_foreign` (`anggota_id`),
+  KEY `peminjaman_eksemplar_id_foreign` (`eksemplar_id`),
+  CONSTRAINT `peminjaman_anggota_id_foreign` FOREIGN KEY (`anggota_id`) REFERENCES `anggota` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `peminjaman_eksemplar_id_foreign` FOREIGN KEY (`eksemplar_id`) REFERENCES `eksemplar` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
