@@ -45,13 +45,12 @@ class AdminController extends Controller
         $this->validate($request, [
             'nama'     => 'required',
             'jk'       => 'required',
-            'role'     => 'required',
             'username' => 'required',
             'password' => 'required'
         ]);
 
         DB::insert("INSERT INTO `admin` (`id`,`nama`,`jk`,`role`,`username`,`password`)values (uuid(),?,?,?,?,?)",
-            [$request->nama, $request->jk, $request->role, $request->username, Hash::make($request->password)]);
+            [$request->nama, $request->jk, 'Admin', $request->username, Hash::make($request->password)]);
         return redirect()->route('admin.index')->with(['success' => 'data berhasil disimpan']);
     }
 
@@ -94,16 +93,15 @@ class AdminController extends Controller
         $this->validate($request, [
             'nama'     => 'required',
             'jk'       => 'required',
-            'role'     => 'required',
             'username' => 'required'
         ]);
 
         $data = DB::table('admin')->where('id', $id)->first();
         if (!$data)
-            redirect()->route('admin.index')->with(['error' => 'data tidak ditemukan!']);
+            return redirect()->route('admin.index')->with(['error' => 'data tidak ditemukan!']);
 
         DB::update("UPDATE `admin` SET `nama`=?, `jk`=?, `role`=?, `username`=?, `password`=? WHERE id =?",
-            [$request->nama, $request->jk, $request->role, $request->username, ($request->password ? Hash::make($request->password) : $data->password), $id]);
+            [$request->nama, $request->jk, 'Admin', $request->username, ($request->password ? Hash::make($request->password) : $data->password), $id]);
 
         return redirect()->route('admin.index')->with(['success' => 'data berhasil di update!']);
     }

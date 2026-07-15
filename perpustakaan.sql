@@ -41,7 +41,7 @@ CREATE TABLE `admin` (
 
 LOCK TABLES `admin` WRITE;
 /*!40000 ALTER TABLE `admin` DISABLE KEYS */;
-INSERT INTO `admin` VALUES ('e4ce3fdc-9465-11ee-a615-0a0027000010','Rina','Perempuan','Pustakawan','rina','$2y$10$3FMWta6U.gaMgBASqOiTHuBEmfYtrLodOQ38qgecqIU06IRDYuJqa',NULL,NULL);
+INSERT INTO `admin` VALUES ('e4ce3fdc-9465-11ee-a615-0a0027000010','Rina','Perempuan','Admin','rina','$2y$10$3FMWta6U.gaMgBASqOiTHuBEmfYtrLodOQ38qgecqIU06IRDYuJqa',NULL,NULL);
 /*!40000 ALTER TABLE `admin` ENABLE KEYS */;
 UNLOCK TABLES;
 

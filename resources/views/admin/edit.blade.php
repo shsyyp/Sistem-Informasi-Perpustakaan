@@ -33,7 +33,7 @@
                             @enderror
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-6">
                         <div class="form-group mb-3">
                             <label class="form-label">Jenis Kelamin</label>
                             <select name="jk" class="form-control @error('jk') is-invalid @enderror">
@@ -43,22 +43,6 @@
                             </select>
                             <!-- error message for jk -->
                             @error('jk')
-                                <div class="alert alert-danger mt-2">
-                                    {{ $message }}
-                                </div>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group mb-3">
-                            <label class="form-label">Role</label>
-                            <select name="role" class="form-control @error('role') is-invalid @enderror">
-                                <option value="">. . . . . .</option>
-                                <option value="Pustakawan" {{ $data->role == 'Pustakawan' ? 'selected' : '' }}>Pustakawan</option>
-                                <option value="Admin" {{ $data->role == 'Admin' ? 'selected' : '' }}>Admin</option>
-                            </select>
-                            <!-- error message for role -->
-                            @error('role')
                                 <div class="alert alert-danger mt-2">
                                     {{ $message }}
                                 </div>

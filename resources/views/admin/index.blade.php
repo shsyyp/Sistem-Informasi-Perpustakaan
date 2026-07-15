@@ -22,7 +22,6 @@
                     <tr>
                         <th>Nama</th>
                         <th>Jenis Kelamin</th>
-                        <th>Role</th>
                         <th>Username</th>
                         <th class="text-end">Aksi</th>
                     </tr>
@@ -32,7 +31,6 @@
                         <tr>
                             <td><i class="fa fa-user fa-md text-primary me-3"></i> <strong>{{ $admin->nama }}</strong></td>
                             <td>{{ $admin->jk }}</td>
-                            <td><span class="badge bg-label-{{ $admin->role == 'Pustakawan' ? 'success' : 'danger' }}">{{ $admin->role }}</span></td>
                             <td>{{ $admin->username }}</td>
                             <td class="text-end">
                                 <div class="dropdown">
