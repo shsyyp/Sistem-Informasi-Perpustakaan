@@ -43,14 +43,15 @@ class AnggotaController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'kode_anggota'  => 'required',
             'jenis_anggota' => 'required',
             'nama'          => 'required',
             'jenis_kelamin' => 'required',
         ]);
 
+        $kodeAnggota = $this->generateKodeAnggota($request->jenis_anggota);
+
         DB::insert("INSERT INTO `anggota` (`id`,`kode_anggota`,`jenis_anggota`,`nama`,`jenis_kelamin`)values (uuid(),?,?,?,?)",
-            [strtoupper($request->kode_anggota), $request->jenis_anggota, $request->nama, $request->jenis_kelamin]);
+            [$kodeAnggota, $request->jenis_anggota, $request->nama, $request->jenis_kelamin]);
         return redirect()->route('anggota.index')->with(['success' => 'data berhasil disimpan']);
     }
 
@@ -116,7 +117,6 @@ class AnggotaController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'kode_anggota'  => 'required',
             'jenis_anggota' => 'required',
             'nama'          => 'required',
             'jenis_kelamin' => 'required',
@@ -126,8 +126,13 @@ class AnggotaController extends Controller
         if (!$data)
             redirect()->route('anggota.index')->with(['error' => 'data tidak ditemukan!']);
 
+        $kodeAnggota = $data->kode_anggota;
+        if ($data->jenis_anggota !== $request->jenis_anggota) {
+            $kodeAnggota = $this->generateKodeAnggota($request->jenis_anggota, $id);
+        }
+
         DB::update("UPDATE `anggota` SET `kode_anggota`=?, `jenis_anggota`=?, `nama`=?, `jenis_kelamin`=? WHERE id =?",
-            [strtoupper($request->kode_anggota), $request->jenis_anggota, $request->nama, $request->jenis_kelamin, $id]);
+            [$kodeAnggota, $request->jenis_anggota, $request->nama, $request->jenis_kelamin, $id]);
 
         return redirect()->route('anggota.index')->with(['success' => 'data berhasil di update!']);
     }
@@ -144,5 +149,32 @@ class AnggotaController extends Controller
         DB::table('anggota')->where('id', $id)->delete();
         // //redirect to index
         return redirect()->route('anggota.index')->with(['success' => ' data berhasil dihapus']);
+    }
+
+    private function generateKodeAnggota($jenisAnggota, $excludeId = null)
+    {
+        $prefixMap = [
+            'Siswa' => 'S',
+            'Guru'  => 'G',
+            'Umum'  => 'U',
+        ];
+
+        $prefix = $prefixMap[$jenisAnggota] ?? 'A';
+        $query = DB::table('anggota')
+            ->where('jenis_anggota', $jenisAnggota)
+            ->where('kode_anggota', 'like', $prefix . '-%');
+
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        $maxNumber = 0;
+        foreach ($query->pluck('kode_anggota') as $code) {
+            if (preg_match('/^' . preg_quote($prefix, '/') . '-(\d+)$/', $code, $matches)) {
+                $maxNumber = max($maxNumber, (int) $matches[1]);
+            }
+        }
+
+        return $prefix . '-' . str_pad($maxNumber + 1, 3, '0', STR_PAD_LEFT);
     }
 }

@@ -23,13 +23,7 @@
                     <div class="col-md-6">
                         <div class="form-group mb-3">
                             <label class="form-label">Kode Anggota</label>
-                            <input type="text" class="form-control text-uppercase @error('kode_anggota') is-invalid @enderror" minlength="5" name="kode_anggota" value="{{ old('kode_anggota') }}">
-                            <!-- error message for kode_anggota -->
-                            @error('kode_anggota')
-                                <div class="alert alert-danger mt-2">
-                                    {{ $message }}
-                                </div>
-                            @enderror
+                            <input type="text" class="form-control" value="Dibuat otomatis setelah disimpan" disabled>
                         </div>
                     </div>
                     <div class="col-md-6">
