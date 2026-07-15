@@ -1,0 +1,51 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class HomeController extends Controller
+{
+    public function index()
+    {
+        $menu = 'dashboard';
+
+        $dataBuku = DB::select(DB::raw("
+            select buku.*,
+                   (select count(*) from eksemplar where buku_id = buku.id) as jumlah_eksemplar,
+                   (select count(*) from eksemplar where buku_id = buku.id and id in (select eksemplar_id from peminjaman where status = 'Pinjam')) as jumlah_dipinjam
+            from buku
+        "));
+
+        return view('home', compact('dataBuku'));
+    }
+
+    public function kunjungan(Request $request)
+    {
+        $this->validate($request, [
+            'id_tamu' => 'required',
+            'jenis_pengunjung' => 'required',
+            'nama'             => 'required',
+            'asal'             => 'required',
+            'tujuan'           => 'required',
+        ]);
+
+        DB::insert("INSERT INTO `pengunjung` (`id`, `id_tamu`, `jenis_pengunjung`,`nama`,`asal`,`tujuan`, `waktu_kunjungan`) values (uuid(),?,?,?,?,?,?)",
+            [$request->id_tamu, $request->jenis_pengunjung, $request->nama, $request->asal, $request->tujuan, date('Y-m-d H:i:s')]);
+
+        return redirect()->route('home.index')->with(['success' => 'kunjungan berhasil disimpan']);
+    }
+
+    public function getmember(Request $request)
+    {
+        $kode_anggota = $request->input('kode_anggota');
+        $jenis_anggota = $request->input('jenis_anggota');
+
+        // Fetch data from the database based on $identitasValue
+        $data = DB::table('anggota')->where(['kode_anggota' => $kode_anggota, 'jenis_anggota' => $jenis_anggota])->first();
+
+        // Return the data as JSON
+        return response()->json($data);
+    }
+}

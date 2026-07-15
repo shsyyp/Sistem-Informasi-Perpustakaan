@@ -1,0 +1,148 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use DB;
+use Exception;
+use Illuminate\Http\Request;
+
+class AnggotaController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        $menu = 'anggota';
+
+        $data = DB::select(DB::raw("select * from anggota"));
+
+        return view('anggota.index', compact('menu', 'data'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        $menu = 'anggota';
+
+        return view('anggota.create', compact('menu'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $this->validate($request, [
+            'kode_anggota'  => 'required',
+            'jenis_anggota' => 'required',
+            'nama'          => 'required',
+            'jenis_kelamin' => 'required',
+        ]);
+
+        DB::insert("INSERT INTO `anggota` (`id`,`kode_anggota`,`jenis_anggota`,`nama`,`jenis_kelamin`)values (uuid(),?,?,?,?)",
+            [strtoupper($request->kode_anggota), $request->jenis_anggota, $request->nama, $request->jenis_kelamin]);
+        return redirect()->route('anggota.index')->with(['success' => 'data berhasil disimpan']);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function import(Request $request)
+    {
+        $jsonData = json_decode($request->input('jsonData'), true);
+
+        $insertedDataCount = 0;
+
+        // Lakukan iterasi dan lakukan insert ke database
+        foreach ($jsonData as $data) {
+            DB::insert("INSERT INTO `anggota` (`id`,`kode_anggota`,`jenis_anggota`,`nama`,`jenis_kelamin`)values (uuid(),?,?,?,?)",
+                [strtoupper($data['kode_anggota']), $data['jenis_anggota'], $data['nama'], $data['jenis_kelamin']]);
+
+            $insertedDataCount++;
+        }
+
+        return response()->json([
+            'jumlahData' => $insertedDataCount
+        ]);
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+
+    public function edit($id)
+    {
+        $menu = 'anggota';
+
+        $data = DB::table('anggota')->where('id', $id)->first();
+        return view('anggota.edit', compact('menu', 'data'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+
+    public function update(Request $request, $id)
+    {
+        $this->validate($request, [
+            'kode_anggota'  => 'required',
+            'jenis_anggota' => 'required',
+            'nama'          => 'required',
+            'jenis_kelamin' => 'required',
+        ]);
+
+        $data = DB::table('anggota')->where('id', $id)->first();
+        if (!$data)
+            redirect()->route('anggota.index')->with(['error' => 'data tidak ditemukan!']);
+
+        DB::update("UPDATE `anggota` SET `kode_anggota`=?, `jenis_anggota`=?, `nama`=?, `jenis_kelamin`=? WHERE id =?",
+            [strtoupper($request->kode_anggota), $request->jenis_anggota, $request->nama, $request->jenis_kelamin, $id]);
+
+        return redirect()->route('anggota.index')->with(['success' => 'data berhasil di update!']);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+
+    public function destroy($id)
+    {
+        DB::table('anggota')->where('id', $id)->delete();
+        // //redirect to index
+        return redirect()->route('anggota.index')->with(['success' => ' data berhasil dihapus']);
+    }
+}
