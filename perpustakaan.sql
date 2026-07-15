@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.19, for Win64 (x86_64)
 --
--- Host: localhost    Database: rina-pustaka
+-- Host: localhost    Database: perpustakaan
 -- ------------------------------------------------------
 -- Server version	5.7.33
 
@@ -198,7 +198,7 @@ INSERT INTO `pengunjung` VALUES ('3cfc601f-9982-11ee-a615-0a0027000010','U-001',
 UNLOCK TABLES;
 
 --
--- Dumping routines for database 'rina-pustaka'
+-- Dumping routines for database 'perpustakaan'
 --
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

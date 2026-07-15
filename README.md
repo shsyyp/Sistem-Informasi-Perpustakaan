@@ -1,64 +1,124 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# Sistem Informasi Perpustakaan
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistem Informasi Perpustakaan adalah aplikasi web berbasis Laravel yang digunakan untuk mengelola proses utama perpustakaan, mulai dari data buku, anggota, eksemplar buku, peminjaman, pengembalian, admin, hingga pencatatan pengunjung.
 
-## About Laravel
+Project ini digunakan sebagai studi kasus untuk sertifikasi Database Programmer Supervisor.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Fitur Utama
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- Login admin atau pustakawan.
+- Manajemen data admin.
+- Manajemen data anggota perpustakaan.
+- Manajemen data buku.
+- Manajemen data eksemplar buku.
+- Transaksi peminjaman dan pengembalian buku.
+- Pencatatan data pengunjung perpustakaan.
+- Dashboard statistik buku, eksemplar, peminjaman, dan kunjungan.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Teknologi
 
-## Learning Laravel
+- PHP 8
+- Laravel 9
+- MySQL
+- Blade Template
+- Laravel Mix
+- PHPUnit
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Struktur Project
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- `app/Http/Controllers`: controller untuk proses bisnis aplikasi.
+- `routes/web.php`: daftar route halaman dan aksi aplikasi.
+- `resources/views`: tampilan aplikasi menggunakan Blade.
+- `database/migrations`: migration Laravel.
+- `perpustakaan.sql`: struktur dan data awal database.
+- `public/images`: penyimpanan gambar buku.
 
-## Laravel Sponsors
+## Database
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+Nama database yang digunakan:
 
-### Premium Partners
+```text
+perpustakaan
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+File SQL:
 
-## Contributing
+```text
+perpustakaan.sql
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Tabel utama:
 
-## Code of Conduct
+- `admin`
+- `anggota`
+- `buku`
+- `eksemplar`
+- `peminjaman`
+- `pengunjung`
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Relasi logis:
 
-## Security Vulnerabilities
+- Satu `buku` memiliki banyak `eksemplar`.
+- Satu `anggota` dapat memiliki banyak `peminjaman`.
+- Satu `eksemplar` dapat digunakan pada data `peminjaman`.
+- `admin` digunakan untuk autentikasi dan pengelolaan data.
+- `pengunjung` digunakan untuk mencatat kunjungan perpustakaan.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Instalasi
 
-## License
+1. Clone repository.
+2. Jalankan instalasi dependency PHP.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+composer install
+```
+
+3. Salin file environment.
+
+```bash
+copy .env.example .env
+```
+
+4. Generate application key.
+
+```bash
+php artisan key:generate
+```
+
+5. Buat database MySQL dengan nama `perpustakaan`.
+6. Import file `perpustakaan.sql` melalui phpMyAdmin atau MySQL client.
+7. Jalankan aplikasi.
+
+```bash
+php artisan serve
+```
+
+## Pengujian
+
+Pengujian dapat dijalankan dengan perintah:
+
+```bash
+php artisan test
+```
+
+Hasil pengujian terakhir:
+
+```text
+2 tests passed
+```
+
+## Bukti Implementasi Sertifikasi
+
+Project ini mendukung pembuktian unit kompetensi berikut:
+
+- Analisis tools pengembangan aplikasi database.
+- Identifikasi library, framework, dan komponen pendukung.
+- Penggunaan struktur data.
+- Implementasi rancangan entitas dan relasi.
+- Organisasi fungsi, file, dan sumber daya program.
+- Penulisan kode sesuai struktur MVC Laravel.
+- Penggunaan SQL untuk CRUD dan laporan.
+- Akses basis data menggunakan Laravel DB Facade.
+- Implementasi algoritma proses peminjaman dan pengembalian.
+- Dokumentasi kode program dan penggunaan aplikasi.
+- Debugging, source code versioning, profiling, dan code review.
